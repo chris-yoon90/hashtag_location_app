@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html ng-app='hashtagapp'>
+  <head>
+    <title><%= title %></title>
+    <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js'></script>
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='/javascripts/main.js'></script>
+    <link rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css' />
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav navbar-default"> 
+        <a class="navbar-brand" href="/">Hashtag Location App</a>
+      </nav>
+    </div>
+    <div class="container">
+        <div class="col-xs-8">
+          <div class="row" ng-controller="MapController"> 
+            <div id="map"></div>
+            <!--<ul>
+              <li ng-repeat="event in events"> {{event}} </li>
+            </ul>-->
+          </div>
+        </div>
+        <div class="col-xs-3">
+          <div ng-controller="HashtagCloudController">
+            <h2>Hashtag cloud</h2>
+            <ul>
+              <li ng-repeat="hashtag in hashtags"> {{ hashtag }}</li>
+            </ul>
+          </div>
+        </div>
+    </div>
+  </body>
+</html>

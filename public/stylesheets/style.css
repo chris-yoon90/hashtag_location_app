@@ -1,0 +1,25 @@
+/*body {
+  padding: 10px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}*/
+
+
+#map { 
+	width: inherit;
+	height: 600px;
+}
+
+.container {
+	max-width: none !important;
+	width: 1400px;
+}
+
+#sidebar {
+	padding: 20px;
+	float: right;
+	height: 100%;
+}
