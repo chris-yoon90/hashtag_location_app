@@ -1,8 +1,8 @@
 var colors = [
 	'#FF0000', 
 	'#00FF00', 
-	'#0000FF', 
-	'#FFFF00', 
+	'#0080FF', 
+	'#E6E601', 
 	'#00FFFF', 
 	'#FF00FF', 
 	'#808080', 
@@ -62,35 +62,59 @@ app.factory('mapService', function() {
 				opacity: op,
 				fillOpacity: fillop
 			});
+			marker.getLabel().setOpacity(fillop);
 			marker.redraw();
 		}, 50);
 	};
 
 	return {
-		add: function(lat, long, color) {
-			var marker = L.circleMarker([lat, long], {
+		add: function(coordinates, hashtag, color) {
+			var marker = L.circleMarker([coordinates[1], coordinates[0]], {
     			color: color,
     			opacity: 0.5,
     			fillOpacity: 1,
-    			radius: 2
-			});
+    			radius: 3
+			}).bindLabel(hashtag, {noHide: true } );
 			marker.addTo(map);
-			fadeout(marker, 1000);
+			fadeout(marker, 2000);
 		}
 	}
 });
 
 
 app.controller('MapController', function($scope, socket, mapService) {
-	socket.on('hashtagmap', function(events) {
+	/*socket.on('hashtagmap', function(events) {
 		if(events.length !== 0) {
 			$scope.events = events;
 			events.forEach(function(anEvent, i) {
 				anEvent.tweets.forEach(function(tweet) {
-					if(tweet.coordinates.length > 0) {
+					if(tweet.coordinates && tweet.coordinates.length > 0) {
 						mapService.add(tweet.coordinates[1], tweet.coordinates[0], colors[i]);
 					}
 				});
+			});
+		}
+	});*/
+	var hashtaglist = [];
+	
+	socket.on('hashtagcloud', function(hashtags) {
+		hashtaglist = [];
+		hashtags.forEach(function(hashtag) {
+			hashtaglist.push(hashtag._id);
+		});
+	});
+	
+	socket.on('tweet', function(tweet) {
+		if(tweet.hashtags.length === 0) {
+
+		} else {
+			tweet.hashtags.forEach(function(hashtag) {
+				var index = hashtaglist.indexOf(hashtag);
+				if(index !== -1) {
+					mapService.add(tweet.coordinates, hashtag, colors[index]);
+				} else {
+
+				}
 			});
 		}
 	});
@@ -98,7 +122,12 @@ app.controller('MapController', function($scope, socket, mapService) {
 });
 
 app.controller('HashtagCloudController', function($scope, socket) {
-	socket.on('hashtagcloud', function(data) {
-		$scope.hashtags = data;
+	
+	socket.on('hashtagcloud', function(hashtags) {
+		var tempHashtags = [];
+		hashtags.forEach(function(hashtag, i) {
+			tempHashtags.push({id: hashtag._id, value: hashtag.value, color: colors[i]});
+		});
+		$scope.hashtags = tempHashtags;
 	});
 });

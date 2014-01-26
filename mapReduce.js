@@ -1,4 +1,10 @@
 var mapReduce = function(HashtagCount, TweetObject, socket, async) {
+	var hashtaglist = [];
+
+	var getHashtagList = function() {
+		return hashtaglist;
+	};
+
 	var reduce = function() {
 		var o = {};
 		o.map = function() {
@@ -10,14 +16,14 @@ var mapReduce = function(HashtagCount, TweetObject, socket, async) {
 		o.out = { replace: 'hashtagCollection'}
 
 		HashtagCount.mapReduce(o, function(err, results) {
-			var dateNow = Date.now;
 			results.find().sort({value: 'desc'}).where('value').gt(0).limit(10).exec(function(err, docs) {
 				if(err) {
 					console.log(err);
 				} else {
-					console.log(docs);
+					//console.log(docs);
+					hashtaglist = docs;
 					socket.emit('hashtagcloud', docs);
-					var iterator = function(item, callback) {
+					/*var iterator = function(item, callback) {
 						TweetObject.find({hashtags: {$in: [item._id]}}, function(err, queryResults) {
 							if(err) {
 								console.log(err);
@@ -37,11 +43,9 @@ var mapReduce = function(HashtagCount, TweetObject, socket, async) {
 							console.log(err);
 						} else {
 							socket.emit('hashtagmap', events);
-							/*events.forEach(function(e) {
-								console.log("saved Event: " + e.hashtag);
-							});*/
+
 						}
-					});
+					});*/
 
 
 
@@ -49,7 +53,10 @@ var mapReduce = function(HashtagCount, TweetObject, socket, async) {
 			});
 		});
 	};
-	return reduce;
+	return {
+		reduce: reduce,
+		getHashtagList: getHashtagList
+	};
 };
 
 module.exports = mapReduce;

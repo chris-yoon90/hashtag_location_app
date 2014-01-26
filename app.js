@@ -50,7 +50,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function() {
   console.log('Connected to mongodb database');
-  clearDb(HashtagCount, TweetObject);
+  //clearDb(HashtagCount, TweetObject);
 });
 
 app.get('/', routes.index);
@@ -62,16 +62,26 @@ server.listen(app.get('port'), function(){
 });
 
 var io = require('socket.io').listen(server);
+var mapReduce = require('./mapReduce.js')(HashtagCount, TweetObject, io.sockets, async);
 io.sockets.on('connection', function(socket) {
 	console.log("Socket connected.");
-	var mapReduce = require('./mapReduce.js')(HashtagCount, TweetObject, socket, async);
-	mapReduce();
-	setInterval(mapReduce, 1000*5);
+	mapReduce.reduce();
+	setInterval(mapReduce.reduce, 1000*10);
 });
 
 //Tweet Streaming
 (function() {
 	var credentials = require('./credentials.js');
+
+	var getIntersection= function(hashtaglist, hashtagsFromTweets) {
+		var temp = [];
+		hashtaglist.forEach(function(hashtag) {
+			if(hashtagsFromTweets.indexOf(hashtag._id) !== -1) {
+				temp.push(hashtag._id);
+			}
+		});
+		return temp;
+	};
 
 	//Twitter streaming
 	var Twit = require('twit');
@@ -85,8 +95,7 @@ io.sockets.on('connection', function(socket) {
 	var stream = T.stream('statuses/filter', {locations: [-167.98675, 18.25365, -55.1352, 69.0777], language: 'en'});
 
 	stream.on('tweet', function(tweet) {
-		if(tweet.entities.hashtags.length > 0) {
-
+		if(tweet.entities.hashtags.length > 0 && tweet.coordinates) {
 			var hashtags = [];
 			var user_mentions = [];
 			tweet.entities.hashtags.forEach(function(h) {
@@ -110,7 +119,7 @@ io.sockets.on('connection', function(socket) {
 	    		+ " hashtags: " + hashtags
 	    		+ " user_mentions: " + user_mentions);
 
-	    	TweetObject.create({
+	    	var newTweet = new TweetObject({
 	    		id: tweet.id, 
           		createdAt: new Date(tweet.created_at), 
           		message: tweet.text, 
@@ -118,7 +127,15 @@ io.sockets.on('connection', function(socket) {
               		[tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
           		hashtags: hashtags,
           		user_mentions: user_mentions
-	    	}, function(err, tweet) {
+	    	});
+
+	    	//console.log(getIntersection(mapReduce.getHashtagList(), newTweet.hashtags));
+	    	io.sockets.emit('tweet', {
+	    		coordinates: newTweet.coordinates, 
+	    		hashtags: getIntersection(mapReduce.getHashtagList(), newTweet.hashtags)
+	    	});
+
+	    	newTweet.save(function(err, newTweet) {
 	    		if(err) {
 	    			console.log(err);
 	    		} else {
