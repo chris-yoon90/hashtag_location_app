@@ -50,7 +50,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function() {
   console.log('Connected to mongodb database');
-  //clearDb(HashtagCount, TweetObject);
+  clearDb(HashtagCount, TweetObject);
 });
 
 app.get('/', routes.index);

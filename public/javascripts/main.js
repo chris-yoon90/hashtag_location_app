@@ -11,7 +11,7 @@ var colors = [
 	'#8080FF' 
 ];
 
-var app = angular.module('hashtagapp', []);
+var app = angular.module('hashtagapp', ['ngAnimate']);
 
 app.factory('socket', function($rootScope) {
 	var socket = io.connect();
@@ -46,7 +46,7 @@ app.factory('mapService', function() {
 		minZoom: 2
 	}).addTo(map);
 
-	var fadeout = function(marker, fadeTime) {
+	var fadeout = function(marker, hashtag, fadeTime) {
 		var op = 0.5;
 		var fillop = 1;
 		var op_decrement = op/((fadeTime >= 50 ? fadeTime : 50)/50);
@@ -62,7 +62,9 @@ app.factory('mapService', function() {
 				opacity: op,
 				fillOpacity: fillop
 			});
-			marker.getLabel().setOpacity(fillop);
+			if(hashtag) {
+				marker.getLabel().setOpacity(fillop);
+			}
 			marker.redraw();
 		}, 50);
 	};
@@ -74,9 +76,12 @@ app.factory('mapService', function() {
     			opacity: 0.5,
     			fillOpacity: 1,
     			radius: 3
-			}).bindLabel(hashtag, {noHide: true } );
+			});
+			if(hashtag) {
+				marker.bindLabel(hashtag, {noHide: true } );
+			}
 			marker.addTo(map);
-			fadeout(marker, 2000);
+			fadeout(marker, hashtag, 2000);
 		}
 	}
 });
@@ -106,7 +111,7 @@ app.controller('MapController', function($scope, socket, mapService) {
 	
 	socket.on('tweet', function(tweet) {
 		if(tweet.hashtags.length === 0) {
-
+			mapService.add(tweet.coordinates, null, '#000000');
 		} else {
 			tweet.hashtags.forEach(function(hashtag) {
 				var index = hashtaglist.indexOf(hashtag);
