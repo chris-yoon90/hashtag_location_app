@@ -129,6 +129,7 @@ app.controller('MapController', function($scope, socket, mapService) {
 app.controller('HashtagCloudController', function($scope, socket) {
 	
 	socket.on('hashtagcloud', function(hashtags) {
+		console.log("updating hashtagcloud: " + new Date());
 		var tempHashtags = [];
 		hashtags.forEach(function(hashtag, i) {
 			tempHashtags.push({id: hashtag._id, value: hashtag.value, color: colors[i]});

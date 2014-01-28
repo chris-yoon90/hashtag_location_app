@@ -63,10 +63,14 @@ server.listen(app.get('port'), function(){
 
 var io = require('socket.io').listen(server);
 var mapReduce = require('./mapReduce.js')(HashtagCount, TweetObject, io.sockets, async);
+var timer = null;
 io.sockets.on('connection', function(socket) {
+	if(timer) {
+		clearInterval(timer);
+	}
 	console.log("Socket connected.");
 	mapReduce.reduce();
-	setInterval(mapReduce.reduce, 1000*10);
+	timer = setInterval(mapReduce.reduce, 1000*10);
 });
 
 //Tweet Streaming
@@ -111,13 +115,13 @@ io.sockets.on('connection', function(socket) {
 	        	user_mentions.push(u.screen_name.toLowerCase());
 	        });
 
-	    	console.log("tweet ID: " + tweet.id 
+	    	/*console.log("tweet ID: " + tweet.id 
 	    		+ " at: " + tweet.created_at 
 	        	+ " with message: " + tweet.text
 	        	+ " from: " + (tweet.coordinates ? 
 	            	[tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined)
 	    		+ " hashtags: " + hashtags
-	    		+ " user_mentions: " + user_mentions);
+	    		+ " user_mentions: " + user_mentions);*/
 
 	    	var newTweet = new TweetObject({
 	    		id: tweet.id, 
