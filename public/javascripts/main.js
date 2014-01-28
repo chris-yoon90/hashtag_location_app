@@ -126,14 +126,20 @@ app.controller('MapController', function($scope, socket, mapService) {
 	
 });
 
-app.controller('HashtagCloudController', function($scope, socket) {
+app.controller('HashtagCloudController', function($scope, socket, $timeout) {
+
+	$scope.show = false;
 	
 	socket.on('hashtagcloud', function(hashtags) {
 		console.log("updating hashtagcloud: " + new Date());
+		$scope.show = false;
 		var tempHashtags = [];
 		hashtags.forEach(function(hashtag, i) {
 			tempHashtags.push({id: hashtag._id, value: hashtag.value, color: colors[i]});
 		});
-		$scope.hashtags = tempHashtags;
+		$timeout(function() {
+			$scope.hashtags = tempHashtags;
+			$scope.show = true;
+		},600);
 	});
 });
