@@ -1,13 +1,13 @@
 var colors = [
 	'#FF0000', 
-	'#00FF00', 
+	'#02BC02', 
 	'#0080FF', 
-	'#E6E601', 
+	'#CBC700', 
 	'#00FFFF', 
 	'#FF00FF', 
 	'#808080', 
 	'#FF8080', 
-	'#80FF80', 
+	'#67FF67', 
 	'#8080FF' 
 ];
 
@@ -102,7 +102,7 @@ app.controller('MapController', function($scope, socket, mapService) {
 	});*/
 	var hashtaglist = [];
 	
-	socket.on('hashtagcloud', function(hashtags) {
+	socket.on('hashtaglist', function(hashtags) {
 		hashtaglist = [];
 		hashtags.forEach(function(hashtag) {
 			hashtaglist.push(hashtag._id);
@@ -126,20 +126,115 @@ app.controller('MapController', function($scope, socket, mapService) {
 	
 });
 
-app.controller('HashtagCloudController', function($scope, socket, $timeout) {
+app.controller('HashtagListController', function($scope, socket, $timeout) {
 
-	$scope.show = false;
-	
-	socket.on('hashtagcloud', function(hashtags) {
+	var tempHashtags = [];
+
+	$scope.getHashtags = function() {
+		return tempHashtags;
+	};
+
+	socket.on('hashtaglist', function(hashtags) {
 		console.log("updating hashtagcloud: " + new Date());
-		$scope.show = false;
-		var tempHashtags = [];
+		tempHashtags = [];
 		hashtags.forEach(function(hashtag, i) {
 			tempHashtags.push({id: hashtag._id, value: hashtag.value, color: colors[i]});
 		});
-		$timeout(function() {
-			$scope.hashtags = tempHashtags;
-			$scope.show = true;
-		},600);
 	});
+});
+
+app.directive('fadeMe', function($animate, $timeout) {
+	return function(scope, element, attrs) {
+		scope.$watch(attrs.fadeMe, function(newVal, oldVal) {
+			if(newVal.length > 0) {
+				$animate.addClass(element, 'fadeoutandin');
+				$timeout(function() {
+					$animate.removeClass(element, 'fadeoutandin');
+					scope.hashtags = newVal;
+				}, 800);
+			}
+		});
+	}
+});
+
+app.animation('.fadeoutandin', function() {
+  return {
+    enter : function(element, done) {
+      element.css('opacity',0);
+      jQuery(element).animate({
+        opacity: 1
+      }, done);
+ 
+      // optional onDone or onCancel callback
+      // function to handle any post-animation
+      // cleanup operations
+      return function(isCancelled) {
+        if(isCancelled) {
+          jQuery(element).stop();
+        }
+      }
+    },
+    leave : function(element, done) {
+      element.css('opacity', 1);
+      jQuery(element).animate({
+        opacity: 0
+      }, done);
+ 
+      // optional onDone or onCancel callback
+      // function to handle any post-animation
+      // cleanup operations
+      return function(isCancelled) {
+        if(isCancelled) {
+          jQuery(element).stop();
+        }
+      }
+    },
+    move : function(element, done) {
+      element.css('opacity', 0);
+      jQuery(element).animate({
+        opacity: 1
+      }, done);
+ 
+      // optional onDone or onCancel callback
+      // function to handle any post-animation
+      // cleanup operations
+      return function(isCancelled) {
+        if(isCancelled) {
+          jQuery(element).stop();
+        }
+      }
+    },
+ 
+    // you can also capture these animation events
+    addClass : function(element, className, done) {
+    	element.css('opacity',1);
+      jQuery(element).animate({
+        opacity: 0
+      }, 600, done);
+ 
+      // optional onDone or onCancel callback
+      // function to handle any post-animation
+      // cleanup operations
+      return function(isCancelled) {
+        if(isCancelled) {
+          jQuery(element).stop();
+        }
+      }
+    },
+    removeClass : function(element, className, done) {
+    	element.css('opacity', 0);
+      jQuery(element).animate({
+        opacity: 1
+      }, 600, done);
+ 
+      // optional onDone or onCancel callback
+      // function to handle any post-animation
+      // cleanup operations
+      return function(isCancelled) {
+        if(isCancelled) {
+          jQuery(element).stop();
+        }
+      }
+    }
+  }
 });

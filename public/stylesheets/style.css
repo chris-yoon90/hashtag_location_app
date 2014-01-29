@@ -7,10 +7,16 @@ a {
   color: #00B7FF;
 }*/
 
+html, body, #map, .container, .col-xs-9, .row {
+    height: 98%;
+}
+
+body {
+	background-color: #F0F0F0;
+}
 
 #map { 
 	width: inherit;
-	height: 600px;
 }
 
 .container {
@@ -18,26 +24,6 @@ a {
 	width: 1400px;
 }
 
-#sidebar {
-	padding: 20px;
-	float: right;
-	height: 100%;
-}
-
-.hashtagcloud.ng-hide-add, .hashtagcloud.ng-hide-remove {
-  -webkit-transition:all linear 0.5s;
-  -moz-transition:all linear 0.5s;
-  -o-transition:all linear 0.5s;
-  transition:all linear 0.5s;
-  display:block!important;
-}
- 
-.hashtagcloud.ng-hide-add.ng-hide-add-active,
-.hashtagcloud.ng-hide-remove {
-  opacity:0;
-}
- 
-.hashtagcloud.ng-hide-add,
-.hashtagcloud.ng-hide-remove.ng-hide-remove-active {
-  opacity:1;
+.hashtaglist {
+	font-size: 20px;
 }

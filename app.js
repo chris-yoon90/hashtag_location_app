@@ -70,7 +70,7 @@ io.sockets.on('connection', function(socket) {
 	}
 	console.log("Socket connected.");
 	mapReduce.reduce();
-	timer = setInterval(mapReduce.reduce, 1000*10);
+	timer = setInterval(mapReduce.reduce, 1000*5);
 });
 
 //Tweet Streaming

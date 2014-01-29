@@ -15,21 +15,19 @@
     <script src='/javascripts/lib/leaflet.label.js'></script>
   </head>
   <body>
+    <nav class="nav navbar-inverse"> 
+      <a class="navbar-brand" href="/">Hashtag Location App</a>
+    </nav>
     <div class="container">
-      <nav class="nav navbar-default"> 
-        <a class="navbar-brand" href="/">Hashtag Location App</a>
-      </nav>
-    </div>
-    <div class="container">
-        <div class="col-xs-8">
+        <div class="col-xs-9">
           <div class="row" ng-controller="MapController"> 
             <div id="map"></div>
           </div>
         </div>
         <div class="col-xs-3">
-          <div ng-controller="HashtagCloudController">
-            <h2>Hashtag cloud</h2>
-            <ol class='hashtagcloud' ng-show='show'>
+          <div ng-controller="HashtagListController">
+            <h2>Hashtag List</h2>
+            <ol fade-me='getHashtags()' class='hashtaglist'>
               <li ng-repeat="hashtag in hashtags" ng-style="{color: hashtag.color}"> {{ hashtag.id }} : {{ hashtag.value }}</li>
             </ol>
           </div>

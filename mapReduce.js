@@ -22,7 +22,7 @@ var mapReduce = function(HashtagCount, TweetObject, socket, async) {
 				} else {
 					//console.log(docs);
 					hashtaglist = docs;
-					socket.emit('hashtagcloud', docs);
+					socket.emit('hashtaglist', docs);
 					/*var iterator = function(item, callback) {
 						TweetObject.find({hashtags: {$in: [item._id]}}, function(err, queryResults) {
 							if(err) {
