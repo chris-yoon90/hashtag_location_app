@@ -87,19 +87,7 @@ app.factory('mapService', function() {
 });
 
 
-app.controller('MapController', function($scope, socket, mapService) {
-	/*socket.on('hashtagmap', function(events) {
-		if(events.length !== 0) {
-			$scope.events = events;
-			events.forEach(function(anEvent, i) {
-				anEvent.tweets.forEach(function(tweet) {
-					if(tweet.coordinates && tweet.coordinates.length > 0) {
-						mapService.add(tweet.coordinates[1], tweet.coordinates[0], colors[i]);
-					}
-				});
-			});
-		}
-	});*/
+app.controller('MapController', function($scope, $rootScope, socket, mapService) {
 	var hashtaglist = [];
 	
 	socket.on('hashtaglist', function(hashtags) {
@@ -117,6 +105,7 @@ app.controller('MapController', function($scope, socket, mapService) {
 				var index = hashtaglist.indexOf(hashtag);
 				if(index !== -1) {
 					mapService.add(tweet.coordinates, hashtag, colors[index]);
+					$rootScope.$broadcast('pulseHashtag', hashtag);
 				} else {
 
 				}
@@ -143,13 +132,23 @@ app.controller('HashtagListController', function($scope, socket, $timeout) {
 	});
 });
 
+app.directive('pulseMe', function($animate) {
+	return function(scope, element, attrs) {
+		scope.$on('pulseHashtag', function(eventObject, hashtag) {
+			if(attrs.pulseMe === hashtag) {
+				console.log("pulse this: " + element);
+			}
+		});
+	}
+});
+
 app.directive('fadeMe', function($animate, $timeout) {
 	return function(scope, element, attrs) {
 		scope.$watch(attrs.fadeMe, function(newVal, oldVal) {
 			if(newVal.length > 0) {
-				$animate.addClass(element, 'fadeoutandin');
+				$animate.addClass(element, 'fade');
 				$timeout(function() {
-					$animate.removeClass(element, 'fadeoutandin');
+					$animate.removeClass(element, 'fade');
 					scope.hashtags = newVal;
 				}, 800);
 			}
@@ -157,7 +156,7 @@ app.directive('fadeMe', function($animate, $timeout) {
 	}
 });
 
-app.animation('.fadeoutandin', function() {
+app.animation('.fade', function() {
   return {
     enter : function(element, done) {
       element.css('opacity',0);
@@ -165,9 +164,6 @@ app.animation('.fadeoutandin', function() {
         opacity: 1
       }, done);
  
-      // optional onDone or onCancel callback
-      // function to handle any post-animation
-      // cleanup operations
       return function(isCancelled) {
         if(isCancelled) {
           jQuery(element).stop();
@@ -180,9 +176,6 @@ app.animation('.fadeoutandin', function() {
         opacity: 0
       }, done);
  
-      // optional onDone or onCancel callback
-      // function to handle any post-animation
-      // cleanup operations
       return function(isCancelled) {
         if(isCancelled) {
           jQuery(element).stop();
@@ -195,9 +188,6 @@ app.animation('.fadeoutandin', function() {
         opacity: 1
       }, done);
  
-      // optional onDone or onCancel callback
-      // function to handle any post-animation
-      // cleanup operations
       return function(isCancelled) {
         if(isCancelled) {
           jQuery(element).stop();
@@ -205,16 +195,12 @@ app.animation('.fadeoutandin', function() {
       }
     },
  
-    // you can also capture these animation events
     addClass : function(element, className, done) {
     	element.css('opacity',1);
       jQuery(element).animate({
         opacity: 0
       }, 600, done);
  
-      // optional onDone or onCancel callback
-      // function to handle any post-animation
-      // cleanup operations
       return function(isCancelled) {
         if(isCancelled) {
           jQuery(element).stop();
@@ -226,10 +212,7 @@ app.animation('.fadeoutandin', function() {
       jQuery(element).animate({
         opacity: 1
       }, 600, done);
- 
-      // optional onDone or onCancel callback
-      // function to handle any post-animation
-      // cleanup operations
+
       return function(isCancelled) {
         if(isCancelled) {
           jQuery(element).stop();

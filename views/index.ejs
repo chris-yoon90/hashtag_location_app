@@ -28,7 +28,7 @@
           <div ng-controller="HashtagListController">
             <h2>Hashtag List</h2>
             <ol fade-me='getHashtags()' class='hashtaglist'>
-              <li ng-repeat="hashtag in hashtags" ng-style="{color: hashtag.color}"> {{ hashtag.id }} : {{ hashtag.value }}</li>
+              <li ng-repeat="hashtag in hashtags" ng-style="{color: hashtag.color}" pulse-me='{{hashtag.id}}'> {{ hashtag.id }} : {{ hashtag.value }}</li>
             </ol>
           </div>
         </div>
