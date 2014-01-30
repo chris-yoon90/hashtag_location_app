@@ -132,11 +132,14 @@ app.controller('HashtagListController', function($scope, socket, $timeout) {
 	});
 });
 
-app.directive('pulseMe', function($animate) {
+app.directive('pulseMe', function($animate, $timeout) {
 	return function(scope, element, attrs) {
 		scope.$on('pulseHashtag', function(eventObject, hashtag) {
 			if(attrs.pulseMe === hashtag) {
-				console.log("pulse this: " + element);
+				$animate.addClass(element, '.pulse');
+				$timeout(function() {
+					$animate.removeClass(element, '.pulse');
+				},500);
 			}
 		});
 	}
@@ -156,68 +159,102 @@ app.directive('fadeMe', function($animate, $timeout) {
 	}
 });
 
-app.animation('.fade', function() {
-  return {
-    enter : function(element, done) {
-      element.css('opacity',0);
-      jQuery(element).animate({
-        opacity: 1
-      }, done);
- 
-      return function(isCancelled) {
-        if(isCancelled) {
-          jQuery(element).stop();
-        }
-      }
-    },
-    leave : function(element, done) {
-      element.css('opacity', 1);
-      jQuery(element).animate({
-        opacity: 0
-      }, done);
- 
-      return function(isCancelled) {
-        if(isCancelled) {
-          jQuery(element).stop();
-        }
-      }
-    },
-    move : function(element, done) {
-      element.css('opacity', 0);
-      jQuery(element).animate({
-        opacity: 1
-      }, done);
- 
-      return function(isCancelled) {
-        if(isCancelled) {
-          jQuery(element).stop();
-        }
-      }
-    },
- 
-    addClass : function(element, className, done) {
-    	element.css('opacity',1);
-      jQuery(element).animate({
-        opacity: 0
-      }, 600, done);
- 
-      return function(isCancelled) {
-        if(isCancelled) {
-          jQuery(element).stop();
-        }
-      }
-    },
-    removeClass : function(element, className, done) {
-    	element.css('opacity', 0);
-      jQuery(element).animate({
-        opacity: 1
-      }, 600, done);
+app.animation('.pulse', function() {
+	return {
+		enter : function(element, done) {
 
-      return function(isCancelled) {
-        if(isCancelled) {
-          jQuery(element).stop();
-        }
-      }
-    }
-  }
+		},
+		leave : function(element, done) {
+
+		},
+		move : function(element, done) {
+
+		},
+
+		addClass : function(element, className, done) {
+			jQuery(element).animate({
+				opacity: 1,
+				fontSize: 30
+			}, 200)
+			.delay(50)
+			.animate({
+				opacity: 0.7,
+				fontSize: 20
+			}, 200, done);
+		},
+		removeClass : function(element, className, done) {
+
+			return function(isCancelled) {
+				if(isCancelled) {
+					jQuery(element).stop();
+				}
+			}
+		}
+	}
+});
+
+app.animation('.fade', function() {
+	return {
+		enter : function(element, done) {
+			element.css('opacity',0);
+			jQuery(element).animate({
+				opacity: 0.7
+			}, done);
+
+			return function(isCancelled) {
+				if(isCancelled) {
+					jQuery(element).stop();
+				}
+			}
+		},
+		leave : function(element, done) {
+			element.css('opacity', 0.7);
+			jQuery(element).animate({
+				opacity: 0
+			}, done);
+
+			return function(isCancelled) {
+				if(isCancelled) {
+					jQuery(element).stop();
+				}
+			}
+		},
+		move : function(element, done) {
+			element.css('opacity', 0);
+			jQuery(element).animate({
+				opacity: 0.7
+			}, done);
+
+			return function(isCancelled) {
+				if(isCancelled) {
+					jQuery(element).stop();
+				}
+			}
+		},
+
+		addClass : function(element, className, done) {
+			element.css('opacity',0.7);
+			jQuery(element).animate({
+				opacity: 0
+			}, 600, done);
+
+			return function(isCancelled) {
+				if(isCancelled) {
+					jQuery(element).stop();
+				}
+			}
+		},
+		removeClass : function(element, className, done) {
+			element.css('opacity', 0);
+			jQuery(element).animate({
+				opacity: 0.7
+			}, 600, done);
+
+			return function(isCancelled) {
+				if(isCancelled) {
+					jQuery(element).stop();
+				}
+			}
+		}
+	}
 });
