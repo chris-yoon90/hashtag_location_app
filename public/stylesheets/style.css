@@ -25,6 +25,9 @@ body {
 }
 
 .hashtaglist {
-	font-size: 20px;
-	opacity: 0.7;
+	font-size: 14px;
+}
+
+.hashtaglist > li {
+	padding: 10px;
 }

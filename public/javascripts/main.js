@@ -13,7 +13,7 @@ var colors = [
 
 var app = angular.module('hashtagapp', ['ngAnimate']);
 
-app.factory('socket', function($rootScope) {
+app.factory('socket', ['$rootScope', function($rootScope) {
 	var socket = io.connect();
 	return {
 		on: function(eventName, callback) {
@@ -35,9 +35,9 @@ app.factory('socket', function($rootScope) {
 			});
 		}
 	};
-});
+}]);
 
-app.factory('mapService', function() {
+app.factory('mapService', [function() {
 	var map = L.map('map').setView([55, -100], 3);
 
 	L.tileLayer('http://{s}.tile.cloudmade.com/d65c54c0239145d689cc3ad2f84b9c0d/22677/256/{z}/{x}/{y}.png', {
@@ -78,88 +78,94 @@ app.factory('mapService', function() {
     			radius: 3
 			});
 			if(hashtag) {
-				marker.bindLabel(hashtag, {noHide: true } );
+				marker.bindLabel(hashtag, {noHide: true, direction: 'auto' } );
 			}
 			marker.addTo(map);
 			fadeout(marker, hashtag, 2000);
 		}
 	}
-});
+}]);
 
 
-app.controller('MapController', function($scope, $rootScope, socket, mapService) {
-	var hashtaglist = [];
-	
-	socket.on('hashtaglist', function(hashtags) {
-		hashtaglist = [];
-		hashtags.forEach(function(hashtag) {
-			hashtaglist.push(hashtag._id);
+app.controller('MapController', [
+	'$scope', 
+	'$rootScope', 
+	'socket', 
+	'mapService',
+	function($scope, $rootScope, socket, mapService) {
+		var hashtaglist = [];
+		
+		socket.on('hashtaglist', function(hashtags) {
+			hashtaglist = [];
+			hashtags.forEach(function(hashtag) {
+				hashtaglist.push(hashtag._id);
+			});
 		});
-	});
-	
-	socket.on('tweet', function(tweet) {
-		if(tweet.hashtags.length === 0) {
-			mapService.add(tweet.coordinates, null, '#000000');
-		} else {
-			tweet.hashtags.forEach(function(hashtag) {
-				var index = hashtaglist.indexOf(hashtag);
-				if(index !== -1) {
-					mapService.add(tweet.coordinates, hashtag, colors[index]);
-					$rootScope.$broadcast('pulseHashtag', hashtag);
-				} else {
+		
+		socket.on('tweet', function(tweet) {
+			if(tweet.hashtags.length === 0) {
+				mapService.add(tweet.coordinates, null, '#000000');
+			} else {
+				tweet.hashtags.forEach(function(hashtag) {
+					var index = hashtaglist.indexOf(hashtag);
+					if(index !== -1) {
+						mapService.add(tweet.coordinates, hashtag, colors[index]);
+						$rootScope.$broadcast('pulseHashtag', hashtag);
+					} else {
 
+					}
+				});
+			}
+		});
+}]);
+
+app.controller('HashtagListController', ['$scope', 'socket', '$timeout', 
+	function($scope, socket, $timeout) {
+		var tempHashtags = [];
+
+		$scope.getHashtags = function() {
+			return tempHashtags;
+		};
+
+		socket.on('hashtaglist', function(hashtags) {
+			console.log("updating hashtagcloud: " + new Date());
+			tempHashtags = [];
+			hashtags.forEach(function(hashtag, i) {
+				tempHashtags.push({id: hashtag._id, value: hashtag.value, color: colors[i]});
+			});
+		});
+}]);
+
+app.directive('pulseMe', ['$animate', '$timeout', 
+	function($animate, $timeout) {
+		return function(scope, element, attrs) {
+			scope.$on('pulseHashtag', function(eventObject, hashtag) {
+				if(attrs.pulseMe === hashtag) {
+					$animate.addClass(element, '.pulse');
+					$timeout(function() {
+						$animate.removeClass(element, '.pulse');
+					},500);
 				}
 			});
 		}
-	});
-	
-});
+}]);
 
-app.controller('HashtagListController', function($scope, socket, $timeout) {
+app.directive('fadeMe', ['$animate', '$timeout',
+	function($animate, $timeout) {
+		return function(scope, element, attrs) {
+			scope.$watch(attrs.fadeMe, function(newVal, oldVal) {
+				if(newVal.length > 0) {
+					$animate.addClass(element, 'fade');
+					$timeout(function() {
+						$animate.removeClass(element, 'fade');
+						scope.hashtags = newVal;
+					}, 800);
+				}
+			});
+		}
+}]);
 
-	var tempHashtags = [];
-
-	$scope.getHashtags = function() {
-		return tempHashtags;
-	};
-
-	socket.on('hashtaglist', function(hashtags) {
-		console.log("updating hashtagcloud: " + new Date());
-		tempHashtags = [];
-		hashtags.forEach(function(hashtag, i) {
-			tempHashtags.push({id: hashtag._id, value: hashtag.value, color: colors[i]});
-		});
-	});
-});
-
-app.directive('pulseMe', function($animate, $timeout) {
-	return function(scope, element, attrs) {
-		scope.$on('pulseHashtag', function(eventObject, hashtag) {
-			if(attrs.pulseMe === hashtag) {
-				$animate.addClass(element, '.pulse');
-				$timeout(function() {
-					$animate.removeClass(element, '.pulse');
-				},500);
-			}
-		});
-	}
-});
-
-app.directive('fadeMe', function($animate, $timeout) {
-	return function(scope, element, attrs) {
-		scope.$watch(attrs.fadeMe, function(newVal, oldVal) {
-			if(newVal.length > 0) {
-				$animate.addClass(element, 'fade');
-				$timeout(function() {
-					$animate.removeClass(element, 'fade');
-					scope.hashtags = newVal;
-				}, 800);
-			}
-		});
-	}
-});
-
-app.animation('.pulse', function() {
+app.animation('.pulse', [function() {
 	return {
 		enter : function(element, done) {
 
@@ -173,14 +179,11 @@ app.animation('.pulse', function() {
 
 		addClass : function(element, className, done) {
 			jQuery(element).animate({
-				opacity: 1,
-				fontSize: 30
-			}, 200)
-			.delay(50)
+				fontSize: 18
+			}, 150)
 			.animate({
-				opacity: 0.7,
-				fontSize: 20
-			}, 200, done);
+				fontSize: 14
+			}, 150, done);
 		},
 		removeClass : function(element, className, done) {
 
@@ -191,14 +194,14 @@ app.animation('.pulse', function() {
 			}
 		}
 	}
-});
+}]);
 
-app.animation('.fade', function() {
+app.animation('.fade', [function() {
 	return {
 		enter : function(element, done) {
 			element.css('opacity',0);
 			jQuery(element).animate({
-				opacity: 0.7
+				opacity: 1
 			}, done);
 
 			return function(isCancelled) {
@@ -208,7 +211,7 @@ app.animation('.fade', function() {
 			}
 		},
 		leave : function(element, done) {
-			element.css('opacity', 0.7);
+			element.css('opacity', 1);
 			jQuery(element).animate({
 				opacity: 0
 			}, done);
@@ -222,7 +225,7 @@ app.animation('.fade', function() {
 		move : function(element, done) {
 			element.css('opacity', 0);
 			jQuery(element).animate({
-				opacity: 0.7
+				opacity: 1
 			}, done);
 
 			return function(isCancelled) {
@@ -233,7 +236,7 @@ app.animation('.fade', function() {
 		},
 
 		addClass : function(element, className, done) {
-			element.css('opacity',0.7);
+			element.css('opacity',1);
 			jQuery(element).animate({
 				opacity: 0
 			}, 600, done);
@@ -247,7 +250,7 @@ app.animation('.fade', function() {
 		removeClass : function(element, className, done) {
 			element.css('opacity', 0);
 			jQuery(element).animate({
-				opacity: 0.7
+				opacity: 1
 			}, 600, done);
 
 			return function(isCancelled) {
@@ -257,4 +260,4 @@ app.animation('.fade', function() {
 			}
 		}
 	}
-});
+}]);
