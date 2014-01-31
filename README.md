@@ -8,3 +8,5 @@ This application determines the most frequently used hashtags in Twitter and dis
 * Angularjs
 * MongoDb
 
+### Credits:
+[Chris Yoon](https://github.com/chris-yoon90)
