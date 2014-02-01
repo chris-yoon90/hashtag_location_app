@@ -54,7 +54,7 @@ db.once('open', function() {
 });
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+app.get('/partials/:name', routes.partials);
 
 var server = http.createServer(app);
 server.listen(app.get('port'), function(){

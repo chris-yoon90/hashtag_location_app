@@ -1,0 +1,15 @@
+<div class="container">
+  <div class="col-xs-9">
+    <div class="row"> 
+      <div id="map"></div>
+    </div>
+  </div>
+  <div class="col-xs-3">
+    <div>
+      <h2>Hashtag List</h2>
+      <ol fade-me class='hashtaglist'>
+        <li ng-repeat="hashtag in hashtags" ng-style="{color: hashtag.color}" pulse-me='{{hashtag.id}}'> {{ hashtag.id }} : {{ hashtag.value }}</li>
+      </ol>
+    </div>
+  </div>
+</div>
