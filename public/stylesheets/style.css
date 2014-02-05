@@ -7,16 +7,18 @@ a {
   color: #00B7FF;
 }*/
 
-#map {
-    height: 650px;
-}
-
 body {
 	background-color: #F0F0F0;
+	height: 100%;
+	width: 100%;
 }
 
 #map { 
-	width: inherit;
+	position: absolute;
+	top: 50px;
+	left: 270px;
+	right: 0;
+	bottom: 0;
 }
 
 .container {
@@ -26,8 +28,13 @@ body {
 
 .hashtaglist {
 	font-size: 14px;
+	font-weight: bold;
 }
 
-.hashtaglist > li {
-	padding: 10px;
+#sidebar {
+	padding-left: 10px;
+	height: 100%;
+	width: 260px;
+	left: 0;
 }
+

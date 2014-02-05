@@ -6,7 +6,10 @@ appControllers.controller('MainPageCtrl', [
 	'$timeout',
 	'socket', 
 	'mapService',
-	function($scope, $rootScope, $timeout, socket, mapService) {
+	'colorGenerator',
+	function($scope, $rootScope, $timeout, socket, mapService, colorGenerator) {
+		var colors = colorGenerator.generate_colors(10);
+
 		var hashtaglist = [];
 		var tempHashtags = [];
 
